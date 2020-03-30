@@ -99,6 +99,7 @@ foreach ($p in $params) {
             }
         }
         "rootDIR"  { $rootDir = $fields[1].Trim() }
+        "VM2NAME"  { $VM2NAME = $fields[1].Trim() }
     }
 }
 
@@ -245,16 +246,18 @@ foreach ($p in $params)
         #
         # Get Nic with given MAC Address
         #
-        $nic = Get-VMNetworkAdapter -VMName $vmName -ComputerName $hvServer -IsLegacy:$legacy | where {$_.MacAddress -eq $macAddress }
-        if ($nic)
-        {
-                $nic |  Remove-VMNetworkAdapter -Confirm:$false
+        foreach ($vm in @($vmName, $VM2NAME)) {
+            $nic = Get-VMNetworkAdapter -VMName $vm -ComputerName $hvServer -IsLegacy:$legacy | where {$_.MacAddress -eq $macAddress }
+            if ($nic)
+            {
+                    $nic |  Remove-VMNetworkAdapter -Confirm:$false
 
-            $retVal = $True
-        }
-        else
-        {
-            "$vmName - No NIC found with MAC $macAddress ."
+                $retVal = $True
+            }
+            else
+            {
+                "$vmName - No NIC found with MAC $macAddress ."
+            }
         }
     }
 }
